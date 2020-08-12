@@ -14,14 +14,6 @@ public class Class {
     }
 
 
-    public String getClassId() {
-        return classId;
-    }
-
-    public void setClassId(String classId) {
-        this.classId = classId;
-    }
-
     public Class(String userId, String classId, String course_title, String course_code, List<Student> listOfStudents) {
         this.id = userId;
         this.course_title = course_title;
@@ -61,4 +53,13 @@ public class Class {
     public void setListOfStudents(List<Student> listOfStudents) {
         this.listOfStudents = listOfStudents;
     }
+
+    public String getClassId() {
+        return classId;
+    }
+
+    public void setClassId(String classId) {
+        this.classId = classId;
+    }
+
 }

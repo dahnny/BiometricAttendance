@@ -3,11 +3,13 @@ package com.grace.biometricattendance;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +38,7 @@ public class StudentProfile extends AppCompatActivity {
     CollectionReference reference;
     List<Class> classes;
     String classDocumentId;
+    ProgressBar simpleProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,11 +55,16 @@ public class StudentProfile extends AppCompatActivity {
         reference = firestore.collection("class");
         auth = FirebaseAuth.getInstance();
 
+        simpleProgressBar = (ProgressBar)findViewById(R.id.simpleProgressBar);
+        simpleProgressBar.setVisibility(View.VISIBLE);
         Intent intent = getIntent();
         String id = intent.getStringExtra("id");
         String classId = intent.getStringExtra("classId");
-        Toast.makeText(this, id, Toast.LENGTH_LONG).show();
-        getClassById(classId);
+
+        if (classId != null) {
+            getClassById(classId);
+        }
+
         if (id != null) {
             findStudentById(id);
 
@@ -66,56 +74,53 @@ public class StudentProfile extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 addStudentToDataBase();
+                finish();
             }
         });
-
-
     }
 
     private void getClassById(String classId) {
-        String adminUserId = auth.getCurrentUser().getUid();
-        reference.whereEqualTo("classId", classId).get().addOnSuccessListener
-                (new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        for (QueryDocumentSnapshot snapshot : queryDocumentSnapshots) {
-                           classDocumentId = snapshot.getId();
-                            Class newClass = snapshot.toObject(Class.class);
-                            listOfStudents = newClass.getListOfStudents();
-                        }
+        reference.document(classId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                Class newClass = documentSnapshot.toObject(Class.class);
+                classDocumentId = documentSnapshot.getId();
+//                        Class newClass = documentSnapshot.toObject(Class.class);
+                listOfStudents = newClass.getListOfStudents();
+            }
+        });
+    }
 
-//               addStudentToDataBase();
+    private void addStudentToDataBase() {
+        reference.document(classDocumentId).update("listOfStudents", listOfStudents)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        finish();
                     }
                 });
     }
 
-    private void addStudentToDataBase() {
-       reference.document(classDocumentId).update("listOfStudents", listOfStudents);
-git
-    }
-
     private void findStudentById(final String id) {
-        Toast.makeText(this, "NEW IDDDDDD" + id, Toast.LENGTH_LONG).show();
         firestore.collection("Student").whereEqualTo("studentId", id).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
-                            Toast.makeText(StudentProfile.this, "proceed", Toast.LENGTH_SHORT).show();
                             String level = documentSnapshot.get("level").toString();
                             String gender = documentSnapshot.get("gender").toString();
                             String firstName = documentSnapshot.get("first_name").toString();
                             String lastName = documentSnapshot.get("last_name").toString();
                             String matriculationNumber = documentSnapshot.getId();
-                            Student student = new Student(id, level, gender, firstName, lastName);
+                            Student student = new Student(id, level, gender, firstName, lastName, matriculationNumber);
                             name.setText(firstName + " " + lastName);
                             matriculationNumberText.setText(matriculationNumber);
                             level_text.setText(level);
                             gender_text.setText(gender);
+                            simpleProgressBar.setVisibility(View.GONE);
                             listOfStudents.add(student);
 
                         }
-
 
                     }
 

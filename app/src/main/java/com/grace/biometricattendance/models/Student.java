@@ -6,13 +6,22 @@ public class Student {
     String gender;
     String firstName;
     String LastName;
+    String matriculationNumber;
 
-    public Student(String id, String level, String gender, String firstName, String lastName) {
+    public Student() {
+    }
+
+    public Student(String id, String level, String gender, String firstName, String lastName, String matriculationNumber) {
         this.id = id;
         this.level = level;
         this.gender = gender;
         this.firstName = firstName;
         LastName = lastName;
+        this.matriculationNumber = matriculationNumber;
+    }
+
+    public String getMatriculationNumber() {
+        return matriculationNumber;
     }
 
     public String getId() {

@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -37,7 +38,7 @@ import java.util.Map;
 
 public class AddClass extends AppCompatActivity {
     EditText course_title, course_code;
-    Button addClass, attendance;
+    Button addClass, attendance, generateReport;
     FirebaseAuth auth;
     FirebaseFirestore firestore;
     private static final int REQUEST_CODE = 0;
@@ -46,48 +47,67 @@ public class AddClass extends AppCompatActivity {
     ProfileDetails match;
     List<ProfileDetails> detailsList;
     ProfileDetails details;
-    List<Student> students = new ArrayList<>() ;
-    String classId = Timestamp.now().toString();
+    List<Student> students = new ArrayList<>();
+    String classId;
+    ProgressBar simpleProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_class);
 
-        course_code = (EditText)findViewById(R.id.edit_course_code);
-        course_title = (EditText)findViewById(R.id.edit_course_title);
+        course_code = (EditText) findViewById(R.id.edit_course_code);
+        course_title = (EditText) findViewById(R.id.edit_course_title);
         firestore = FirebaseFirestore.getInstance();
+
 
         auth = FirebaseAuth.getInstance();
 
-        addClass = (Button)findViewById(R.id.add_class);
-        attendance = (Button)findViewById(R.id.attendance);
+        addClass = (Button) findViewById(R.id.add_class);
+        attendance = (Button) findViewById(R.id.attendance);
+        generateReport = (Button) findViewById(R.id.generate_report);
 
         retrieveStudents();
+        Intent intent = getIntent();
+        classId = intent.getStringExtra("classId");
+        String path = intent.getStringExtra("path");
 
+        Toast.makeText(this, classId + "classId", Toast.LENGTH_SHORT).show();
+
+        generateReport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AddClass.this, ReportActivity.class);
+                intent.putExtra("classId", classId);
+//                finish();
+                startActivity(intent);
+            }
+        });
 
         addClass.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (course_code.getText().toString().isEmpty() || course_title.getText().toString().isEmpty()){
+                if (course_code.getText().toString().isEmpty() || course_title.getText().toString().isEmpty()) {
                     Toast.makeText(AddClass.this, "creating...",
                             Toast.LENGTH_SHORT).show();
                     return;
                 }
                 String id = auth.getCurrentUser().getUid();
                 Toast.makeText(AddClass.this, id, Toast.LENGTH_SHORT).show();
-                Class classes = new Class(id, classId, course_title.getText().toString(), course_code.getText().toString(),students);
+                String classId = Timestamp.now().toString();
+                Class classes = new Class(id, classId, course_title.getText().toString(), course_code.getText().toString(), students);
                 firestore.collection("class").document().set(classes)
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()){
+                                if (task.isSuccessful()) {
                                     Log.d("TAG", "created class successfully");
                                     Toast.makeText(AddClass.this, "created class successfully",
                                             Toast.LENGTH_SHORT).show();
                                     addClass.setEnabled(false);
+                                    finish();
 
-                                }else{
+                                } else {
                                     Toast.makeText(AddClass.this, "created class failed",
                                             Toast.LENGTH_SHORT).show();
                                 }
@@ -106,17 +126,17 @@ public class AddClass extends AppCompatActivity {
 
     }
 
-    private void retrieveStudents(){
+    private void retrieveStudents() {
         detailsList = new ArrayList<>();
         firestore.collection("Student").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
-                        Blob fingerprint = ((Blob)documentSnapshot.get("fingerprint"));
+                        Blob fingerprint = ((Blob) documentSnapshot.get("fingerprint"));
                         String studentId = documentSnapshot.get("studentId").toString();
 
-                        byte[] img = fingerprint.toBytes() ;
+                        byte[] img = fingerprint.toBytes();
                         FingerprintTemplate template = new FingerprintTemplate()
                                 .dpi(500)
                                 .create(img);
@@ -126,7 +146,7 @@ public class AddClass extends AppCompatActivity {
                         Log.i("TAG", detailsList.toString());
                         Toast.makeText(AddClass.this, "Working...", Toast.LENGTH_SHORT).show();
                     }
-                }else{
+                } else {
                     Toast.makeText(AddClass.this, "Not Working", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -140,6 +160,10 @@ public class AddClass extends AppCompatActivity {
         switch (requestCode) {
             case 0:
                 if (resultCode == RESULT_OK) {
+//                    simpleProgressBar = (ProgressBar)findViewById(R.id.simpleProgressBar);
+//                    simpleProgressBar.setVisibility(View.VISIBLE);
+
+                    Toast.makeText(this, classId + "classId", Toast.LENGTH_SHORT).show();
                     status = data.getIntExtra("status", Status.ERROR);
 
                     if (status == Status.SUCCESS) {
@@ -150,25 +174,23 @@ public class AddClass extends AppCompatActivity {
                                 .create(img);
 
                         match = find(template, detailsList);
-
+//                      simpleProgressBar.setVisibility(View.GONE);
 
                         if (match != null) {
                             Intent intent = new Intent(AddClass.this, StudentProfile.class);
                             intent.putExtra("id", match.getId());
+
                             intent.putExtra("classId", classId);
                             startActivity(intent);
 
                             Toast.makeText(this, "Match found", Toast.LENGTH_SHORT).show();
-
                         }
                     }
                 }
         }
     }
+
     private ProfileDetails find(FingerprintTemplate probe, List<ProfileDetails> candidates) {
-        ProgressDialog dialog = new ProgressDialog(this);
-        dialog.setMessage("Loading Profile");
-        dialog.show();
         FingerprintMatcher matcher = new FingerprintMatcher()
                 .index(probe);
         ProfileDetails match = null;
@@ -182,10 +204,10 @@ public class AddClass extends AppCompatActivity {
             }
         }
         double threshold = 40;
-        if (high>=threshold){
-            dialog.dismiss();
+        if (high >= threshold) {
+
             return match;
-        }else {
+        } else {
             return null;
         }
 

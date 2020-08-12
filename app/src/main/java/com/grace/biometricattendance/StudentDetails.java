@@ -74,6 +74,7 @@ public class StudentDetails extends AppCompatActivity {
         student.put("last_name", lastName.getText().toString());
         student.put("level", level.getText().toString());
         student.put("gender", gender.getText().toString());
+        student.put("matriculationNumber", matriculationNumber.getText().toString());
         student.put("fingerprint", "");
 
 
@@ -112,7 +113,7 @@ public class StudentDetails extends AppCompatActivity {
                             img = data.getByteArrayExtra("img");
                             firestore.collection("Student")
                                     .document(matriculationNumber.getText().toString()).update("fingerprint", Blob.fromBytes(img));
-
+                            finish();
                         }
                     }
                 }

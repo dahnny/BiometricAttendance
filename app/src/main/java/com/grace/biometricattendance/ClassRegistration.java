@@ -20,6 +20,7 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -51,7 +52,6 @@ public class ClassRegistration extends AppCompatActivity {
         user_id = intent.getStringExtra("user_id");
 
         addClass = (Button) findViewById(R.id.add_class);
-        setAttendance = (Button) findViewById(R.id.set_attendance);
 
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -91,15 +91,17 @@ public class ClassRegistration extends AppCompatActivity {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.class_registration_adapter,
                         parent, false);
                 return new MyViewHolder(view);
+
             }
         };
         recyclerView.setAdapter(firestoreRecyclerAdapter);
         firestoreRecyclerAdapter.startListening();
     }
+
     @Override
-    protected void onStop(){
+    protected void onStop() {
         super.onStop();
-        if(firestoreRecyclerAdapter != null){
+        if (firestoreRecyclerAdapter != null) {
             firestoreRecyclerAdapter.stopListening();
         }
     }
@@ -108,7 +110,7 @@ public class ClassRegistration extends AppCompatActivity {
     public class MyViewHolder extends RecyclerView.ViewHolder {
         TextView course_title;
         TextView course_code;
-        View ItemView;// init the item view's
+        View itemView;// init the item view's
 
         void setData(String courseTitle, String courseCode) {
             course_title = (TextView) itemView.findViewById(R.id.edit_course_title);
@@ -120,8 +122,23 @@ public class ClassRegistration extends AppCompatActivity {
 
         public MyViewHolder(View itemView) {
             super(itemView);
-            ItemView = itemView;
+            this.itemView = itemView;
             // get the reference of item view's
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    DocumentSnapshot snapshot = firestoreRecyclerAdapter.getSnapshots().getSnapshot(position);
+                    Class newClass = snapshot.toObject(Class.class);
+                    String id = snapshot.getId();
+                    String path = snapshot.getReference().getPath();
+                    Intent intent = new Intent(ClassRegistration.this, AddClass.class);
+                    intent.putExtra("classId", id);
+                    intent.putExtra("path", path);
+                    startActivity(intent);
+                }
+            });
+
 
         }
     }
