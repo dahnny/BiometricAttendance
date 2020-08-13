@@ -1,5 +1,7 @@
 package com.grace.biometricattendance.models;
 
+import java.util.Date;
+
 public class Student {
     String id;
     String level;
@@ -7,6 +9,8 @@ public class Student {
     String firstName;
     String LastName;
     String matriculationNumber;
+    Date date;
+
 
     public Student() {
     }
@@ -18,6 +22,13 @@ public class Student {
         this.firstName = firstName;
         LastName = lastName;
         this.matriculationNumber = matriculationNumber;
+    }
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 
     public String getMatriculationNumber() {

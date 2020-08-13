@@ -57,7 +57,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="18sp"
                 android:layout_marginLeft="10dp"
-                android:text="First Name"
+                android:text="Name"
                 android:textStyle="bold"/>
             <TextView
                 android:layout_width="wrap_content"
@@ -65,7 +65,7 @@
                 android:textSize="18sp"
                 android:layout_marginLeft="10dp"
                 android:textStyle="bold"
-                android:text="Last Name"/>
+                android:text="Date"/>
         </LinearLayout>
        <androidx.recyclerview.widget.RecyclerView
            android:layout_width="match_parent"

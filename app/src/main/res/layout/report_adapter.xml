@@ -14,7 +14,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Matriculation Number"
-            android:textSize="20sp"
+            android:textSize="15sp"
 
             android:id="@+id/matriculation_number_report"/>
 
@@ -22,16 +22,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="First Name"
-            android:textSize="20sp"
+            android:textSize="15sp"
             android:layout_marginLeft="10dp"
             android:id="@+id/first_name_report"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Last Name"
-            android:textSize="20sp"
+            android:textSize="15sp"
             android:layout_marginLeft="10dp"
             android:id="@+id/last_name_report"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Date"
+            android:textSize="10sp"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/date"/>
 
     </LinearLayout>
 

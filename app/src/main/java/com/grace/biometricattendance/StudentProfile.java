@@ -22,11 +22,13 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.type.DateTime;
 import com.grace.biometricattendance.models.Class;
 import com.grace.biometricattendance.models.Student;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class StudentProfile extends AppCompatActivity {
@@ -113,6 +115,7 @@ public class StudentProfile extends AppCompatActivity {
                             String lastName = documentSnapshot.get("last_name").toString();
                             String matriculationNumber = documentSnapshot.getId();
                             Student student = new Student(id, level, gender, firstName, lastName, matriculationNumber);
+                            student.setDate(new Date());
                             name.setText(firstName + " " + lastName);
                             matriculationNumberText.setText(matriculationNumber);
                             level_text.setText(level);
